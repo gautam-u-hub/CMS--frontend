@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import axios from "axios";
 import { Alert } from "react-bootstrap";
@@ -9,8 +8,6 @@ import { API_URL } from "../../Links";
 const NewPolicy = () => {
   const [formData, setFormData] = useState({
     policyType: "",
-    startDate: "",
-    endDate: "",
     policyTerm: "",
     paymentFrequency: "",
     premiumAmount: "",
@@ -19,15 +16,13 @@ const NewPolicy = () => {
   });
   const [formErrors, setFormErrors] = useState({
     policyType: "",
-    startDate: "",
-    endDate: "",
     policyTerm: "",
     paymentFrequency: "",
     premiumAmount: "",
     termsAndConditions: "",
     sumAssured: "",
   });
-  const [errorMessage, setErrorMessage] = useState(null); // State to manage error
+  const [errorMessage, setErrorMessage] = useState(null); 
   const [successMessage, setSuccessMessage] = useState(null);
 
   const handleChange = (e) => {
@@ -40,31 +35,11 @@ const NewPolicy = () => {
       ...formErrors,
       [name]: value
         ? ""
-        : `Please enter ${name.replace(/([A-Z])/g, " $1").toLowerCase()}.`,
+        : `Please enter ${name.replace(/[A-Z]/g, match => ' ' + match.toLowerCase())}.`,
     });
   };
 
-  const handleStartDateChange = (date) => {
-    setFormData({
-      ...formData,
-      startDate: date,
-    });
-    setFormErrors({
-      ...formErrors,
-      startDate: date ? "" : "Please select a start date.",
-    });
-  };
-
-  const handleEndDateChange = (date) => {
-    setFormData({
-      ...formData,
-      endDate: date,
-    });
-    setFormErrors({
-      ...formErrors,
-      endDate: date ? "" : "Please select an end date.",
-    });
-  };
+  
 
 const handleSubmit = async (event) => {
   event.preventDefault();
@@ -74,28 +49,22 @@ const handleSubmit = async (event) => {
 
   for (const key in formData) {
     if (formData.hasOwnProperty(key) && formData[key] === "") {
-      newFormErrors[key] = `Please enter ${key
-        .replace(/([A-Z])/g, " $1")
-        .toLowerCase()}.`;
+      newFormErrors[key] = `Please enter ${key.replace(
+        /[A-Z]/g,
+        (match) => " " + match.toLowerCase()
+      )}.`;
       isValid = false;
     }
   }
 
-  if (
-    formData.startDate >= formData.endDate
-  ) {
-    newFormErrors.endDate = "End date must be after start date.";
-    isValid = false;
-  }
+  
 
-  // Validate premium amount
   const premiumAmount = parseFloat(formData.premiumAmount);
   if (isNaN(premiumAmount) || premiumAmount <= 0) {
     newFormErrors.premiumAmount = "Premium amount must be a positive number.";
     isValid = false;
   }
 
-  // Validate sum assured
   const sumAssured = parseFloat(formData.sumAssured);
   if (isNaN(sumAssured) || sumAssured < 0) {
     newFormErrors.sumAssured = "Sum assured must be a non-negative number.";
@@ -153,43 +122,10 @@ const handleSubmit = async (event) => {
             />
             <div className="invalid-feedback">{formErrors.policyType}</div>
           </div>
-          <div className="mb-3">
-            <label className="form-label" htmlFor="startDate">
-              Start Date:
-            </label>
-            <br />
-            <DatePicker
-              selected={formData.startDate}
-              onChange={handleStartDateChange}
-              className={`form-control ${
-                formErrors.startDate ? "is-invalid" : ""
-              }`}
-              name="startDate"
-              dateFormat="MM/dd/yyyy"
-              required
-            />
-            <div style={{ color: "red" }}>{formErrors.startDate}</div>
-          </div>
-          <div className="mb-3">
-            <label className="form-label" htmlFor="endDate">
-              End Date:
-            </label>
-            <br />
-            <DatePicker
-              selected={formData.endDate}
-              onChange={handleEndDateChange}
-              className={`form-control ${
-                formErrors.endDate ? "is-invalid" : ""
-              }`}
-              name="endDate"
-              dateFormat="MM/dd/yyyy"
-              required
-            />
-            <div style={{ color: "red" }}>{formErrors.endDate}</div>
-          </div>
+
           <div className="mb-3">
             <label className="form-label" htmlFor="policyTerm">
-              Policy Term:
+              Policy Term (in years)
             </label>
             <input
               className={`form-control ${
@@ -208,17 +144,21 @@ const handleSubmit = async (event) => {
             <label className="form-label" htmlFor="paymentFrequency">
               Payment Frequency:
             </label>
-            <input
+            <select
               className={`form-control ${
                 formErrors.paymentFrequency ? "is-invalid" : ""
               }`}
-              type="text"
               id="paymentFrequency"
               name="paymentFrequency"
               value={formData.paymentFrequency}
               onChange={handleChange}
               required
-            />
+            >
+              <option value="">Select Payment Frequency</option>
+              <option value="Monthly">Monthly</option>
+              <option value="Quarterly">Quarterly</option>
+              <option value="Yearly">Yearly</option>
+            </select>
             <div className="invalid-feedback">
               {formErrors.paymentFrequency}
             </div>
@@ -273,7 +213,7 @@ const handleSubmit = async (event) => {
                 required
               />
             </div>
-            <div className="invalid-feedback">{formErrors.sumAssured}</div>
+            <div style={{ color: "red" }}>{formErrors.sumAssured}</div>
           </div>
           <div className="mb-3">
             <label className="form-label" htmlFor="termsAndConditions">

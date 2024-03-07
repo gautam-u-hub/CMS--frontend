@@ -9,15 +9,13 @@ import { Alert } from "react-bootstrap";
 import { useSelector } from "react-redux";
 import { API_URL } from "../../Links";
 
-
-
 const ChangeClaimStatus = () => {
   const [errorMessage, setErrorMessage] = useState(null); // State to manage error
   const [successMessage, setSuccessMessage] = useState(null);
-    const [lastPaymentDate, setLastPaymentDate] = useState(null);
+  const [lastPaymentDate, setLastPaymentDate] = useState(null);
+  const [paymentFrequency, setPaymentFrequency] = useState(null);
 
   const user = useSelector((state) => state.user.user.user);
-
 
   const { claimId } = useParams();
 
@@ -28,17 +26,16 @@ const ChangeClaimStatus = () => {
         setClaim(response.data.claim);
         console.log(response.data);
         setLastPaymentDate(response.data.lastPaymentDate);
-        // Process the response here
+        setPaymentFrequency(response.data.paymentFrequency);
       } catch (error) {
         console.error("Error changing claim status:", error);
-        
       }
     };
 
-    fetchData(); // Call the async function
+    fetchData(); 
   }, [claimId]);
   const [claim, setClaim] = useState("");
-  const [status, setStatus] = useState(""); // State to manage selected status
+  const [status, setStatus] = useState(""); 
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -48,16 +45,15 @@ const ChangeClaimStatus = () => {
       };
 
       const { data } = await axios.put(
-        `http://localhost:4000/TPA/claims/${claimId}`,
+        `${API_URL}/TPA/claims/${claimId}`,
         { status },
         config
       );
       console.log(data);
       setSuccessMessage("Claim Status Changed Succesfully");
-
     } catch (e) {
       console.log(e);
-      setErrorMessage("Error changing claim status")
+      setErrorMessage("Error changing claim status");
     }
   };
   useEffect(() => {
@@ -99,12 +95,12 @@ const ChangeClaimStatus = () => {
               Claim Date:
             </label>
             <input
-              className="form-control readonly-input" // Apply the readonly-input class
+              className="form-control readonly-input"
               type="text"
               id="location"
               name="claimDate"
               required
-              value={claim.claimDate}
+              value={new Date(claim.claimDate).toLocaleDateString("en-GB")}
               readOnly
             />
             <div className="valid-feedback">Looks good!</div>
@@ -114,12 +110,27 @@ const ChangeClaimStatus = () => {
               Last Premium Payment Pay Date:
             </label>
             <input
-              className="form-control readonly-input" // Apply the readonly-input class
+              className="form-control readonly-input"
               type="text"
               id="location"
               name="lastPaymentDate"
               required
-              value={lastPaymentDate}
+              value={new Date(lastPaymentDate).toLocaleDateString("en-GB")}
+              readOnly
+            />
+            <div className="valid-feedback">Looks good!</div>
+          </div>
+          <div className="mb-3">
+            <label className="form-label" htmlFor="location">
+              Payment Frequency:
+            </label>
+            <input
+              className="form-control readonly-input"
+              type="text"
+              id="location"
+              name="paymentFrequency"
+              required
+              value={paymentFrequency}
               readOnly
             />
             <div className="valid-feedback">Looks good!</div>

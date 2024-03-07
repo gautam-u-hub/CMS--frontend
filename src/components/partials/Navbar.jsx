@@ -35,7 +35,6 @@ function CustomNavbar() {
             )}
             {currentUser.user && currentUser.user.role !== "policyHolder" && (
               <>
-                <Nav.Link href="/all-policies">All Policies</Nav.Link>
                 <Nav.Link href="/all-claims">All Claims</Nav.Link>
               </>
             )}
@@ -43,8 +42,10 @@ function CustomNavbar() {
             {currentUser.user && currentUser.user.role === "admin" && (
               <>
                 <Nav.Link href="/new-policy">New Policy </Nav.Link>
+                <Nav.Link href="/all-users">All Users </Nav.Link>
               </>
             )}
+            <Nav.Link href="/all-policies">All Policies</Nav.Link>
           </Nav>
           <Nav>
             {!currentUser.user ? (

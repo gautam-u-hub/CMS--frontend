@@ -4,16 +4,37 @@ import axios from "axios";
 import { Alert } from "react-bootstrap";
 import { API_URL } from "../../Links";
 
-const ApplyClaim = () => {
-  const { policyId } = useParams();
-  const [claimAmount, setClaimAmount] = useState("");
-  const [description, setDescription] = useState("");
+const UpdateClaims = () => {
+  const { claimId } = useParams();
+  const [claim, setClaim] = useState({
+    claimAmount: "",
+    description: "",
+  });
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
   const claimDate = new Date();
 
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/claims/${claimId}`);
+        setClaim(response.data.claim);
+      } catch (error) {
+        setError("Error fetching data");
+      }
+    };
+
+    fetchData();
+
+    if (error) {
+      const timeout = setTimeout(() => {
+        setError(null);
+      }, 10000);
+
+      return () => clearTimeout(timeout);
+    }
+
     if (error) {
       const timeout = setTimeout(() => {
         setError(null);
@@ -25,11 +46,11 @@ const ApplyClaim = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!policyId || !claimAmount || !description) {
+    if (!claim.claimAmount || !claim.description) {
       setError("Please fill in all required fields.");
       return;
     }
-    if (claimAmount < 0) {
+    if (claim.claimAmount < 0) {
       setError("Claim Amount cannot be negative");
       return;
     }
@@ -39,14 +60,14 @@ const ApplyClaim = () => {
         headers: { "Content-Type": "application/json" },
       };
 
-      const { data } = await axios.post(
-        `${API_URL}/claims/${policyId}`,
-        { claimDate, claimAmount, description },
+      const { data } = await axios.put(
+        `${API_URL}/claims/${claimId}`,
+        {...claim },
         config
       );
       console.log(data);
 
-      setSuccess("Claim Created Successfully");
+      setSuccess("Claim Updated Successfully");
     } catch (error) {
       setError(error.response.data.message);
     }
@@ -54,7 +75,7 @@ const ApplyClaim = () => {
 
   return (
     <div className="row">
-      <h1 className="text-center">Application for claim </h1>
+      <h1 className="text-center">Update Claim</h1>
       <div className="col-md-6 offset-md-3">
         {error && <Alert variant="danger">{error}</Alert>}
         {success && <Alert variant="success">{success}</Alert>}
@@ -66,40 +87,6 @@ const ApplyClaim = () => {
           encType="multipart/form-data"
         >
           <div className="mb-3">
-            <label className="form-label" htmlFor="title">
-              Policy Id:
-            </label>
-            <input
-              className={`form-control ${!policyId && "is-invalid"}`}
-              type="text"
-              id="policyId"
-              name="policyId"
-              required
-              value={policyId}
-              readOnly
-            />
-            {!policyId && (
-              <div className="invalid-feedback">Policy Id is required.</div>
-            )}
-          </div>
-
-          <div className="mb-3">
-            <label className="form-label" htmlFor="location">
-              Claim Date:
-            </label>
-            <input
-              className="form-control"
-              type="text"
-              id="claimDate"
-              name="claimDate"
-              required
-              value={new Date().toLocaleDateString("en-GB")}
-              readOnly
-            />
-            <div className="valid-feedback">Looks good!</div>
-          </div>
-
-          <div className="mb-3">
             <label className="form-label" htmlFor="price">
               Claim Amount
             </label>
@@ -109,17 +96,19 @@ const ApplyClaim = () => {
               </span>
               <input
                 type="text"
-                className={`form-control ${!claimAmount && "is-invalid"}`}
+                className={`form-control ${!claim.claimAmount && "is-invalid"}`}
                 id="price"
                 placeholder="0.00"
                 aria-label="price"
                 aria-describedby="price-label"
                 name="claimAmount"
                 required
-                value={claimAmount}
-                onChange={(e) => setClaimAmount(e.target.value)}
+                value={claim.claimAmount}
+                onChange={(e) =>
+                  setClaim({ ...claim, claimAmount: e.target.value })
+                }
               />
-              {!claimAmount && (
+              {!claim.claimAmount && (
                 <div className="invalid-feedback">
                   Claim Amount is required.
                 </div>
@@ -132,21 +121,23 @@ const ApplyClaim = () => {
               Description
             </label>
             <textarea
-              className={`form-control ${!description && "is-invalid"}`}
+              className={`form-control ${!claim.description && "is-invalid"}`}
               id="description"
-              name="campground[description]"
+              name="description"
               required
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              value={claim.description}
+              onChange={(e) =>
+                setClaim({ ...claim, description: e.target.value })
+              }
             ></textarea>
-            {!description && (
+            {!claim.description && (
               <div className="invalid-feedback">Description is required.</div>
             )}
           </div>
 
           <div className="mb-3">
             <button type="submit" className="btn btn-success">
-              Apply For Claim
+              Update Claim
             </button>
           </div>
         </form>
@@ -155,4 +146,4 @@ const ApplyClaim = () => {
   );
 };
 
-export default ApplyClaim;
+export default UpdateClaims;
