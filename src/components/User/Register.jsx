@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
@@ -9,47 +9,64 @@ import { useDispatch, useSelector } from "react-redux";
 import { registerUser, clearErrors } from "../../store/userAction";
 import { useNavigate } from "react-router-dom";
 
-const LoginForm = () => {
+const Register = () => {
   const navigate = useNavigate();
 
   const [validated, setValidated] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const dispatch = useDispatch();
   const [errorMessage, setErrorMessage] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
 
   const { user } = useSelector((state) => state.user.user) || {};
   const error = useSelector((state) => state.error);
+
   useEffect(() => {
     if (error && error.error) {
       setErrorMessage(error.error);
       dispatch(clearErrors());
+    } else {
+      setErrorMessage(null);
     }
     if (user && user.name.length > 0) {
-      navigate("/");
+      setSuccessMessage("Registration successful. Redirecting...");
+      setTimeout(() => {
+        navigate("/");
+      }, 2000);
     }
   }, [dispatch, error, user, navigate]);
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
       event.preventDefault();
       event.stopPropagation();
+    } else {
+      event.preventDefault();
+      try {
+        await dispatch(registerUser({ name, email, phoneNumber, password }));
+      } catch (e) {
+        console.error("Registration failed: ", e);
+      }
     }
-
     setValidated(true);
-    event.preventDefault();
-    try {
-      dispatch(registerUser({ email, name, password })).then(() => {
-      });
-    } catch (e) {
-      console.error("Registration failed: ", e);
-    }
+  };
+
+  const isValidEmail = (email) => {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
   };
 
   const handleEmailChange = (event) => {
     setEmail(event.target.value);
+  };
+
+  const handlePhoneNumberChange = (event) => {
+    const inputPhoneNumber = event.target.value;
+    setPhoneNumber(inputPhoneNumber);
   };
 
   const handlePasswordChange = (event) => {
@@ -58,6 +75,10 @@ const LoginForm = () => {
 
   const handleNameChange = (event) => {
     setName(event.target.value);
+  };
+
+  const isValidPhoneNumber = (phoneNumber) => {
+    return /^\d{10}$/.test(phoneNumber);
   };
 
   return (
@@ -71,10 +92,15 @@ const LoginForm = () => {
               className="card-img-top"
             />
           </Card>
-          <br></br>
+          <br />
           {errorMessage && (
             <div className="alert alert-danger" role="alert">
               {errorMessage}
+            </div>
+          )}
+          {successMessage && (
+            <div className="alert alert-success" role="alert">
+              {successMessage}
             </div>
           )}
           <br />
@@ -87,15 +113,16 @@ const LoginForm = () => {
                 <Form.Label>Email</Form.Label>
                 <InputGroup hasValidation>
                   <Form.Control
-                    type="text"
+                    type="email"
                     placeholder="Email"
                     aria-describedby="inputGroupPrepend"
                     required
                     value={email}
                     onChange={handleEmailChange}
+                    isInvalid={!!errorMessage}
                   />
                   <Form.Control.Feedback type="invalid">
-                    Please enter your email.
+                    Please enter a valid email.
                   </Form.Control.Feedback>
                 </InputGroup>
               </Form.Group>
@@ -111,6 +138,7 @@ const LoginForm = () => {
                     required
                     value={name}
                     onChange={handleNameChange}
+                    isInvalid={!!errorMessage}
                   />
                   <Form.Control.Feedback type="invalid">
                     Please enter your Name.
@@ -118,6 +146,24 @@ const LoginForm = () => {
                 </InputGroup>
               </Form.Group>
             </Row>
+
+            <Form.Group controlId="formPhoneNumber">
+              <Form.Label>Phone Number</Form.Label>
+              <InputGroup>
+                <InputGroup.Text>+91</InputGroup.Text>
+                <Form.Control
+                  type="text"
+                  placeholder="Enter phone number"
+                  value={phoneNumber}
+                  onChange={handlePhoneNumberChange}
+                  required
+                  isInvalid={!!errorMessage}
+                />
+                <Form.Control.Feedback type="invalid">
+                  Please enter a valid phone number.
+                </Form.Control.Feedback>
+              </InputGroup>
+            </Form.Group>
 
             <Row className="mb-3">
               <Form.Group as={Col} md="12" controlId="validationCustomPassword">
@@ -130,6 +176,7 @@ const LoginForm = () => {
                     required
                     value={password}
                     onChange={handlePasswordChange}
+                    isInvalid={!!errorMessage}
                   />
                   <Form.Control.Feedback type="invalid">
                     Please enter a password.
@@ -137,7 +184,7 @@ const LoginForm = () => {
                 </InputGroup>
               </Form.Group>
             </Row>
-            <Button type="submit">Login</Button>
+            <Button type="submit">Submit</Button>
           </Form>
         </div>
       </div>
@@ -145,4 +192,4 @@ const LoginForm = () => {
   );
 };
 
-export default LoginForm;
+export default Register;

@@ -6,14 +6,16 @@ import { API_URL } from "../../Links";
 
 const AllClaims = () => {
   const [claims, setClaims] = useState([]);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchClaims = async () => {
       try {
         const response = await axios.get(`${API_URL}/claims`);
         setClaims(response.data.claims);
+        
       } catch (error) {
-        console.error("Error fetching claims:", error);
+        setError(error.response.data.message);
       }
     };
 
@@ -37,6 +39,7 @@ const AllClaims = () => {
     <>
       <div className="container">
         <h1>Your Claims</h1>
+        {error && <p className="alert alert-danger">Error: {error}</p>}
 
         {claims.map((claim, index) => (
           <div className="card mb-3" key={index}>
@@ -52,7 +55,7 @@ const AllClaims = () => {
                   <p
                     className="card-text"
                     style={{
-                      color: getStatusColor(claim.status), // Optional: Set text color to white for better readability
+                      color: getStatusColor(claim.status),
                     }}
                   >
                     Status: {claim.status}
@@ -60,11 +63,12 @@ const AllClaims = () => {
 
                   <p className="card-text">
                     <small className="text-muted">
-                      Creation Date: {claim.claimDate}
+                      Creation Date:{" "}
+                      {new Date(claim.claimDate).toLocaleDateString("en-GB")}
                     </small>
                   </p>
                   <Link
-                    to={`/user-claims/${claim._id}`} 
+                    to={`/user-claims/${claim._id}`}
                     className="btn btn-primary"
                   >
                     Show Claim
