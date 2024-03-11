@@ -1,11 +1,11 @@
 import { policyActions } from "./policies-slice";
 import axios from "axios";
-
+import {API_URL} from "../Links"
 export const getAllPolicies = () => {
     return async (dispatch) => {
         try {
 
-            let link = `http://localhost:4000/policies`;
+            let link = `${API_URL}/policies`;
 
         
             const { data } = await axios.get(link);
@@ -23,7 +23,7 @@ export const getAllUserPolicies = () => {
     return async (dispatch) => {
         try {
 
-            let link = `http://localhost:4000/user/policies`;
+            let link = `${API_URL}/user/policies`;
 
 
             const { data } = await axios.get(link);
