@@ -44,11 +44,11 @@ function CustomNavbar() {
 
             {currentUser.user && currentUser.user.role === "admin" && (
               <>
-                <Nav.Link href="/new-policy">New Policy </Nav.Link>
+                <Nav.Link href="/new-policy">New Plan </Nav.Link>
                 <Nav.Link href="/all-users">All Users </Nav.Link>
               </>
             )}
-            <Nav.Link href="/all-policies">All Policies</Nav.Link>
+            <Nav.Link href="/all-policies">All Plans</Nav.Link>
           </Nav>
           <Nav>
             {!currentUser.user ? (

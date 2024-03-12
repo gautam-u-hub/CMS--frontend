@@ -18,7 +18,7 @@ const AllPolicies = () => {
   return (
     <>
       <div className="container">
-        <h1>All Policies</h1>
+        <h1>All Insurance Plans</h1>
 
         {policies.map((policy, index) => (
           <div className="card mb-3" key={index}>
