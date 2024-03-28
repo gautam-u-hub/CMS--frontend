@@ -1,4 +1,4 @@
 // const API_URL = "https://claims-management-system.onrender.com";
-const API_URL="http://localhost:4000"
+const API_URL="https://claims-management-system.onrender.com"
 
 export { API_URL };
